@@ -49,8 +49,6 @@ if option == "Existing Candidate":
     st.dataframe(recommendations)
 
 # -------------------------------
-# New Candidate Recommendations
-# -------------------------------
 else:
     st.subheader("Enter New Candidate Details")
     new_skills = st.text_input("Skills (comma separated, e.g., Python, SQL, TensorFlow)")
@@ -64,8 +62,8 @@ else:
         new_user_vec = vectorizer.transform([new_user_str])
         cosine_sim_new = cosine_similarity(new_user_vec, feature_matrix).flatten()
         
-        top_indices = cosine_sim_new.argsort()[::-1][:top_n]
+        top_indices = cosine_sim_new.argsort()[::-1][:5]  # fixed top 5
         recommendations_new = df.iloc[top_indices][['Candidate_ID', 'Current_Role', 'Target_Role', 'Skills', 'Experience_Years']]
         
-        st.subheader(f"Top {top_n} Job Recommendations for New Candidate")
+        st.subheader(f"Top 5 Job Recommendations for New Candidate")
         st.dataframe(recommendations_new)
