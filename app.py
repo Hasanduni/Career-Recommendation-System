@@ -4,6 +4,44 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
+# === Data Sources ===
+courses = [
+    "Arts - Information Technology", "Computer Science", "Computer Science", "Computer Science", "Computer Science",
+    "Physical Science - ICT", "Physical Science - ICT", "Artificial Intelligence", "Electronics and Computer Science",
+    "Information Systems", "Information Systems", "Information Systems", "Data Science", "Information Technology (IT)",
+    "Management and Information Technology (MIT)", "Computer Science & Technology", "Information Communication Technology",
+    "Information Communication Technology", "Information Communication Technology", "Information Communication Technology",
+    "Information Communication Technology", "Information Communication Technology", "Information Communication Technology",
+    "Information Communication Technology", "Information Communication Technology"
+]
+
+universities = [
+    "University of Sri Jayewardenepura", "University of Colombo School of Computing (UCSC)", "University of Jaffna",
+    "University of Ruhuna", "Trincomalee Campus, Eastern University, Sri Lanka", "University of Kelaniya",
+    "University of Sri Jayewardenepura", "University of Moratuwa", "University of Kelaniya",
+    "University of Colombo, School of Computing (UCSC)", "University of Sri Jayewardenepura",
+    "Sabaragamuwa University of Sri Lanka", "Sabaragamuwa University of Sri Lanaka", "University of Moratuwa",
+    "University of Kelaniya", "Uva Wellassa University of Sri Lanka", "University of Sri Jayewardenepura",
+    "University of Kelaniya", "University of Vavuniya, Sri Lanka", "University of Ruhuna",
+    "South Eastern University of Sri Lanka", "Rajarata University of Sri Lanka", "University of Colombo",
+    "Uva Wellassa University of Sri Lanka", "Eastern University, Sri Lanka"
+]
+
+languages = ["English", "Sinhala", "Tamil"]
+
+skills_list = [
+    "Python", "Java", "SQL", "JavaScript", "TensorFlow", "Pandas", "Docker",
+    "Kubernetes", "HTML/CSS", "Power BI", "Spark", "AWS", "Azure",
+    "Linux", "Tableau", "React", "Node.js"
+]
+
+internships = [
+    "Software Intern", "Data Analyst Intern", "ML Intern", "QA Intern",
+    "BI Intern", "Cloud Intern", "Network Intern", "Cybersecurity Intern", "UI/UX Intern","None"
+]
+
+
+# --- Streamlit Page Config ---
 st.set_page_config(page_title="Job Recommendation System", layout="wide")
 st.title("Content-Based Job Recommendation System")
 
@@ -25,13 +63,11 @@ feature_matrix = vectorizer.fit_transform(df_features['Combined_Features'])
 # Sidebar for recommendation options
 # -------------------------------
 st.sidebar.header("Recommendation Settings")
-top_n = st.sidebar.number_input("Top N Recommendations (for existing candidates only)", min_value=1, max_value=10, value=5)
 option = st.sidebar.radio("Choose Candidate Type", ["Existing Candidate", "New Candidate"])
 
-# -------------------------------
-# Existing Candidate Recommendations
-# -------------------------------
 if option == "Existing Candidate":
+    top_n = st.sidebar.number_input("Top N Recommendations", min_value=1, max_value=10, value=5)
+
     candidate_id = st.sidebar.selectbox("Select Candidate ID", df['Candidate_ID'].tolist())
     
     candidate_index = df_features[df_features['Candidate_ID'] == candidate_id].index[0]
@@ -52,19 +88,42 @@ if option == "Existing Candidate":
 # -------------------------------
 else:
     st.subheader("Enter New Candidate Details")
-    new_skills = st.text_input("Skills (comma separated, e.g., Python, SQL, TensorFlow)")
+
+    # Dropdown for Course
+    new_course = st.selectbox("Select Course", courses)
+
+    # Dropdown for University
+    new_university = st.selectbox("Select University", universities)
+
+    # Multiselect for Skills
+    new_skills = st.multiselect("Select Skills", skills_list)
+
+    # Number input for Experience
     new_experience = st.number_input("Experience in Years", min_value=0.0, max_value=50.0, step=0.1, value=0.0)
-    new_course = st.text_input("Course")
-    new_languages = st.text_input("Language Proficiency (comma separated, e.g., English, Sinhala)")
-    
+
+    # Multiselect for Languages
+    new_languages = st.multiselect("Select Language Proficiency", languages)
+
+    # Dropdown for Internship
+    new_internship = st.selectbox("Select Internship", internships)
+
     if st.button("Recommend Jobs for New Candidate"):
-        # Combine features
-        new_user_str = ' '.join([new_skills, str(new_experience), new_course, new_languages])
+        # Combine features into a single string
+        new_user_str = ' '.join([
+            ' '.join(new_skills),
+            str(new_experience),
+            new_course,
+            new_university,
+            ' '.join(new_languages),
+            new_internship
+        ])
+
+        # Vectorize and get recommendations
         new_user_vec = vectorizer.transform([new_user_str])
         cosine_sim_new = cosine_similarity(new_user_vec, feature_matrix).flatten()
-        
+
         top_indices = cosine_sim_new.argsort()[::-1][:5]  # fixed top 5
         recommendations_new = df.iloc[top_indices][['Candidate_ID', 'Current_Role', 'Target_Role', 'Skills', 'Experience_Years']]
-        
+
         st.subheader("Top 5 Job Recommendations for New Candidate")
         st.dataframe(recommendations_new)
