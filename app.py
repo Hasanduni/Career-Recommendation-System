@@ -10,7 +10,6 @@ st.title("Content-Based Job Recommendation System")
 # --- Load dataset from pickle ---
 df = pd.read_pickle("job_recommendation_dataset.pkl")
 st.success("Dataset loaded successfully!")
-st.dataframe(df.head())
 
 # --- Preprocessing: Combine relevant features ---
 feature_columns = ['Skills', 'Experience_Years', 'Course', 'Language_Proficiency']
@@ -26,7 +25,7 @@ feature_matrix = vectorizer.fit_transform(df_features['Combined_Features'])
 # Sidebar for recommendation options
 # -------------------------------
 st.sidebar.header("Recommendation Settings")
-top_n = st.sidebar.number_input("Top N Recommendations", min_value=1, max_value=10, value=5)
+top_n = st.sidebar.number_input("Top N Recommendations (for existing candidates only)", min_value=1, max_value=10, value=5)
 option = st.sidebar.radio("Choose Candidate Type", ["Existing Candidate", "New Candidate"])
 
 # -------------------------------
@@ -49,6 +48,8 @@ if option == "Existing Candidate":
     st.dataframe(recommendations)
 
 # -------------------------------
+# New Candidate Recommendations
+# -------------------------------
 else:
     st.subheader("Enter New Candidate Details")
     new_skills = st.text_input("Skills (comma separated, e.g., Python, SQL, TensorFlow)")
@@ -65,5 +66,5 @@ else:
         top_indices = cosine_sim_new.argsort()[::-1][:5]  # fixed top 5
         recommendations_new = df.iloc[top_indices][['Candidate_ID', 'Current_Role', 'Target_Role', 'Skills', 'Experience_Years']]
         
-        st.subheader(f"Top 5 Job Recommendations for New Candidate")
+        st.subheader("Top 5 Job Recommendations for New Candidate")
         st.dataframe(recommendations_new)
