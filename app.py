@@ -65,6 +65,9 @@ feature_matrix = vectorizer.fit_transform(df_features['Combined_Features'])
 st.sidebar.header("Recommendation Settings")
 option = st.sidebar.radio("Choose Candidate Type", ["Existing Candidate", "New Candidate"])
 
+# -------------------------------
+# Existing Candidate Recommendations
+# -------------------------------
 if option == "Existing Candidate":
     top_n = st.sidebar.number_input("Top N Recommendations", min_value=1, max_value=10, value=5)
 
@@ -78,10 +81,11 @@ if option == "Existing Candidate":
     sim_scores = [x for x in sim_scores if x[0] != candidate_index]  # remove self
     
     top_indices = [i[0] for i in sim_scores[:top_n]]
-    recommendations = df.iloc[top_indices][['Candidate_ID', 'Current_Role', 'Target_Role', 'Skills', 'Experience_Years']]
+    recommendations = df.iloc[top_indices]['Target_Role']
     
-    st.subheader(f"Top {top_n} Job Recommendations for Candidate ID {candidate_id}")
-    st.dataframe(recommendations)
+    st.subheader(f"Top {top_n} Recommended Roles for Candidate ID {candidate_id}")
+    for idx, role in enumerate(recommendations, start=1):
+        st.write(f"{idx}. {role}")
 
 # -------------------------------
 # New Candidate Recommendations
@@ -123,7 +127,8 @@ else:
         cosine_sim_new = cosine_similarity(new_user_vec, feature_matrix).flatten()
 
         top_indices = cosine_sim_new.argsort()[::-1][:5]  # fixed top 5
-        recommendations_new = df.iloc[top_indices][['Candidate_ID', 'Current_Role', 'Target_Role', 'Skills', 'Experience_Years']]
+        recommendations_new = df.iloc[top_indices]['Target_Role']
 
-        st.subheader("Top 5 Job Recommendations for New Candidate")
-        st.dataframe(recommendations_new)
+        st.subheader("Top 5 Recommended Roles for New Candidate")
+        for idx, role in enumerate(recommendations_new, start=1):
+            st.write(f"{idx}. {role}")
