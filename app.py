@@ -14,7 +14,7 @@ df = pd.read_pickle("job_recommendation_dataset.pkl")
 st.success("Dataset loaded successfully!")
 
 # === Preprocessing ===
-feature_columns = ['Skills', 'Course', 'Language_Proficiency']
+feature_columns = ['Skills', 'Course_University', 'Language_Proficiency']
 df_features = df.copy()
 
 def preprocess_text(text):
@@ -25,10 +25,9 @@ def preprocess_text(text):
 for col in feature_columns:
     df_features[col] = df_features[col].apply(preprocess_text)
 
-# Weighted Skills (3x)
 df_features['Combined_Features'] = (
     df_features['Skills'] + ' ' + df_features['Skills'] + ' ' + df_features['Skills'] + ' ' +
-    df_features['Course'] + ' ' +
+    df_features['Course_University'] + ' ' +
     df_features['Language_Proficiency']
 )
 
