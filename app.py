@@ -95,13 +95,14 @@ def display_recommendation_cards(recommendations, title):
         return
     
     cards_html = ""
-    for _, row in recommendations.iterrows():
+   for _, row in recommendations.iterrows():
     cards_html += f"""
     <div style="background-color: #90D5FF; padding:15px; margin:10px; border-radius:10px; box-shadow:2px 2px 8px rgba(0,0,0,0.1); width:300px; display:inline-block; vertical-align:top;">
         <h4 style="color:#000000;">{row['Target_Role']}</h4>
         <p><strong>Current Role:</strong> {row['Current_Role']}</p>
     </div>
     """
+
 
     
     st.markdown(cards_html, unsafe_allow_html=True)
