@@ -48,6 +48,44 @@ top_n = st.sidebar.number_input("Top N Recommendations", min_value=1, max_value=
 experience_tolerance = st.sidebar.slider("Experience Tolerance (Years)", 0, 10, 2)
 option = st.sidebar.radio("Choose Candidate Type", ["Existing Candidate", "New Candidate"])
 
+# Courses + Universities
+courses = [
+    "Arts - Information Technology", "Computer Science", "Computer Science", "Computer Science", "Computer Science",
+    "Physical Science - ICT", "Physical Science - ICT", "Artificial Intelligence", "Electronics and Computer Science",
+    "Information Systems", "Information Systems", "Information Systems", "Data Science", "Information Technology (IT)",
+    "Management and Information Technology (MIT)", "Computer Science & Technology", "Information Communication Technology",
+    "Information Communication Technology", "Information Communication Technology", "Information Communication Technology",
+    "Information Communication Technology", "Information Communication Technology", "Information Communication Technology",
+    "Information Communication Technology", "Information Communication Technology"
+]
+
+universities = [
+    "University of Sri Jayewardenepura", "University of Colombo School of Computing (UCSC)", "University of Jaffna",
+    "University of Ruhuna", "Trincomalee Campus, Eastern University, Sri Lanka", "University of Kelaniya",
+    "University of Sri Jayewardenepura", "University of Moratuwa", "University of Kelaniya",
+    "University of Colombo, School of Computing (UCSC)", "University of Sri Jayewardenepura",
+    "Sabaragamuwa University of Sri Lanka", "Sabaragamuwa University of Sri Lanaka", "University of Moratuwa",
+    "University of Kelaniya", "Uva Wellassa University of Sri Lanka", "University of Sri Jayewardenepura",
+    "University of Kelaniya", "University of Vavuniya, Sri Lanka", "University of Ruhuna",
+    "South Eastern University of Sri Lanka", "Rajarata University of Sri Lanka", "University of Colombo",
+    "Uva Wellassa University of Sri Lanka", "Eastern University, Sri Lanka"
+]
+
+course_university = [f"{c} - {u}" for c, u in zip(courses, universities)]
+
+languages = ["English", "Sinhala", "Tamil"]
+
+skills_list = [
+    "Python", "Java", "SQL", "JavaScript", "TensorFlow", "Pandas", "Docker",
+    "Kubernetes", "HTML/CSS", "Power BI", "Spark", "AWS", "Azure",
+    "Linux", "Tableau", "React", "Node.js"
+]
+
+internships = [
+    "Software Intern", "Data Analyst Intern", "ML Intern", "QA Intern",
+    "BI Intern", "Cloud Intern", "Network Intern", "Cybersecurity Intern", "UI/UX Intern","None"
+]
+
 # === Function to display recommendations as HTML cards ===
 def display_recommendation_cards(recommendations, title):
     st.subheader(title)
@@ -102,25 +140,30 @@ if option == "Existing Candidate":
 # === New Candidate ===
 else:
     st.subheader("Enter New Candidate Details")
-    new_skills = st.text_input("Skills (comma separated, e.g., Python, SQL, TensorFlow)")
+    new_skills = st.multiselect("Select Skills", options=skills_list)
     new_experience = st.number_input("Experience in Years", min_value=0.0, max_value=50.0, step=0.1, value=0.0)
-    new_course = st.text_input("Course")
-    new_languages = st.text_input("Language Proficiency (comma separated, e.g., English, Sinhala)")
-    
+    new_course_university = st.selectbox("Select Course & University", options=course_university)
+    new_languages = st.multiselect("Language Proficiency", options=languages)
+    new_internship = st.selectbox("Previous Internship", options=internships)
+
     if st.button("Recommend Jobs for New Candidate"):
         # Preprocess input
-        new_skills_proc = preprocess_text(new_skills)
-        new_course_proc = preprocess_text(new_course)
-        new_languages_proc = preprocess_text(new_languages)
+      # Convert lists to comma-separated strings and preprocess
+        skills_str = ' '.join([preprocess_text(skill) for skill in new_skills])
+        languages_str = ' '.join([preprocess_text(lang) for lang in new_languages])
+        course_uni_str = preprocess_text(new_course_university)
+        internship_str = preprocess_text(new_internship)
+        
+        # Weighted Skills (3x)
+        new_user_str = skills_str + ' ' + skills_str + ' ' + skills_str + ' ' + course_uni_str + ' ' + languages_str + ' ' + internship_str
         
         # Scale experience
         new_exp_scaled = scaler.transform([[new_experience]])[0][0]
         
-        # Combine features
-        new_user_str = new_skills_proc + ' ' + new_skills_proc + ' ' + new_skills_proc + ' ' + new_course_proc + ' ' + new_languages_proc
+        # Vectorize and combine features
         new_user_vec = vectorizer.transform([new_user_str]).toarray()
         new_user_vec = np.hstack((new_user_vec, [[new_exp_scaled]]))
-        
+
         # Compute similarity
         cosine_sim_new = cosine_similarity(new_user_vec, final_features).flatten()
         sim_scores_new = list(enumerate(cosine_sim_new))
