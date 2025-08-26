@@ -60,7 +60,7 @@ def display_recommendation_cards(recommendations, title):
     for _, row in recommendations.iterrows():
         cards_html += f"""
         <div style="
-            background-color: #f0f2f6;
+            background-color: #90D5FF;
             padding: 15px;
             margin: 10px;
             border-radius: 10px;
@@ -69,7 +69,7 @@ def display_recommendation_cards(recommendations, title):
             display: inline-block;
             vertical-align: top;
         ">
-            <h4 style="color:#2c3e50;">{row['Target_Role']}</h4>
+            <h4 style="color:#000000;">{row['Target_Role']}</h4>
             <p><strong>Candidate ID:</strong> {row['Candidate_ID']}</p>
             <p><strong>Current Role:</strong> {row['Current_Role']}</p>
             <p><strong>Skills:</strong> {row['Skills']}</p>
