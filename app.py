@@ -174,3 +174,12 @@ else:
         recommendations_new = recommendations_new.drop_duplicates(subset='Target_Role').head(top_n)
 
         display_recommendation_cards(recommendations_new, f"Top {top_n} Job Recommendations for New Candidate")
+# === Link to CV Reader App ===
+st.markdown("---")
+st.markdown("### Need to extract details from your CV?")
+if st.button("Go to CV Reader App"):
+    st.markdown(
+        '<a href="https://cvreader-tncpbwhbt7cpm93tej3prb.streamlit.app/" target="_blank">Click here to open CV Reader</a>',
+        unsafe_allow_html=True
+    )
+
