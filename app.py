@@ -122,9 +122,12 @@ if option == "Existing Candidate":
         if abs(df.iloc[idx]['Experience_Years'] - df.iloc[candidate_index]['Experience_Years']) <= experience_tolerance
     ]
     
-    top_indices = filtered_indices[:top_n]
+    top_indices = filtered_indices  # keep all filtered for uniqueness check
     recommendations = df.iloc[top_indices][['Candidate_ID', 'Current_Role', 'Target_Role', 'Skills', 'Experience_Years']]
-    
+
+# Keep only unique Target_Role and take top N
+    recommendations = recommendations.drop_duplicates(subset='Target_Role').head(top_n)
+
     display_recommendation_cards(recommendations, f"Top {top_n} Job Recommendations for Candidate ID {candidate_id}")
 
 # === New Candidate ===
@@ -164,7 +167,10 @@ else:
             if abs(df.iloc[idx]['Experience_Years'] - new_experience) <= experience_tolerance
         ]
         
-        top_indices_new = filtered_indices_new[:top_n]
+        top_indices_new = filtered_indices_new  # keep all filtered for uniqueness check
         recommendations_new = df.iloc[top_indices_new][['Candidate_ID', 'Current_Role', 'Target_Role', 'Skills', 'Experience_Years']]
-        
+
+# Keep only unique Target_Role and take top N
+        recommendations_new = recommendations_new.drop_duplicates(subset='Target_Role').head(top_n)
+
         display_recommendation_cards(recommendations_new, f"Top {top_n} Job Recommendations for New Candidate")
